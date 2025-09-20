@@ -69,12 +69,12 @@ export const ChatInterface = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-primary text-white rounded-t-lg">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
             <span className="text-primary font-bold text-sm">RB</span>
           </div>
           <div>
-            <h2 className="font-semibold">RainBot</h2>
-            <p className="text-xs text-green-100">Islamic Finance AI Assistant</p>
+            <h2 className="font-semibold text-black">RainBot</h2>
+            <p className="text-xs text-green-500">Islamic Finance AI Assistant</p>
           </div>
         </div>
         
@@ -82,7 +82,7 @@ export const ChatInterface = () => {
           {/* Connection status */}
           <div className="flex items-center space-x-1">
             {isOnline ? (
-              <Wifi className="w-4 h-4 text-green-200" />
+              <Wifi className="w-4 h-4 text-green-400" />
             ) : (
               <WifiOff className="w-4 h-4 text-red-300" />
             )}
@@ -92,7 +92,7 @@ export const ChatInterface = () => {
           <button
             onClick={resetChat}
             disabled={session.isLoading}
-            className="p-1 hover:bg-green-600 rounded transition-colors disabled:opacity-50"
+            className="p-1 hover:bg-green-600 bg-gray-400 rounded transition-colors disabled:opacity-50"
             title="Reset Chat"
           >
             <RefreshCw className="w-4 h-4" />
