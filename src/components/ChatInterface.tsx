@@ -10,7 +10,8 @@ import { QuickSuggestions } from './QuickSuggestions';
 export const ChatInterface = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isOnline, setIsOnline] = useState(true);
-  
+  const [preferredProvider, setPreferredProvider] = useState<'gemini' | 'openai'>('gemini');
+
   const {
     session,
     quickSuggestions,
@@ -44,13 +45,13 @@ export const ChatInterface = () => {
     e.preventDefault();
     if (!inputMessage.trim() || session.isLoading || !isOnline) return;
 
-    await sendMessage(inputMessage);
+    await sendMessage(inputMessage, preferredProvider);
     setInputMessage('');
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     if (session.isLoading || !isOnline) return;
-    sendMessage(suggestion);
+    sendMessage(suggestion, preferredProvider);
   };
 
   if (!isInitialized && !error) {
@@ -77,8 +78,20 @@ export const ChatInterface = () => {
             <p className="text-xs text-green-500">Islamic Finance AI Assistant</p>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-2">
+          {/* Provider selector */}
+          <select
+            value={preferredProvider}
+            onChange={(e) => setPreferredProvider(e.target.value as 'gemini' | 'openai')}
+            disabled={session.isLoading}
+            className="px-2 py-1 text-xs bg-white text-gray-700 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Select AI Provider"
+          >
+            <option value="gemini">Gemini</option>
+            <option value="openai">GPT</option>
+          </select>
+
           {/* Connection status */}
           <div className="flex items-center space-x-1">
             {isOnline ? (
@@ -100,7 +113,7 @@ export const ChatInterface = () => {
           <button
             onClick={clearChat}
             disabled={session.isLoading}
-            className="p-1 hover:bg-green-600 rounded transition-colors disabled:opacity-50"
+            className="p-1 hover:bg-green-600 bg-gray-400 rounded transition-colors disabled:opacity-50"
             title="Clear Chat"
           >
             <Trash2 className="w-4 h-4" />
@@ -122,7 +135,7 @@ export const ChatInterface = () => {
         </div>
       )}
 
-      {/* Messages area */}
+      {/* Messages area and include source*/}
       <div className="flex-1 overflow-y-auto p-4 space-y-2 chat-scrollbar">
         {session.messages.map((message) => (
           <MessageBubble key={message.id} message={message} />

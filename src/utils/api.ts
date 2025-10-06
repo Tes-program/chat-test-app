@@ -42,10 +42,11 @@ export const chatAPI = {
     return response.data;
   },
 
-  sendMessage: async (message: string, sessionId: string) => {
+  sendMessage: async (message: string, sessionId: string, preferredProvider?: 'gemini' | 'openai') => {
     const response = await api.post('/api/chatbot/chat', {
       message,
       sessionId,
+      preferredProvider,
     });
     return response.data;
   },

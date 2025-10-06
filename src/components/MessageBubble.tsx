@@ -22,7 +22,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
           )}
         </div>
 
-        {/* Message content */}
+        {/* Message content and include source */}
         <div className="flex flex-col">
           <div className={`rounded-lg px-4 py-2 ${
             isUser 

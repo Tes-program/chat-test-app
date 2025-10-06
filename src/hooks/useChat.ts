@@ -63,7 +63,7 @@ export const useChat = () => {
     }
   }, []);
 
-  const sendMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string, preferredProvider?: 'gemini' | 'openai') => {
     if (!content.trim() || !session.sessionId) return;
 
     const userMessage: ChatMessage = {
@@ -83,8 +83,8 @@ export const useChat = () => {
     try {
       setError(null);
       console.log('💬 Sending message:', content);
-      
-      const response = await chatAPI.sendMessage(content, session.sessionId);
+
+      const response = await chatAPI.sendMessage(content, session.sessionId, preferredProvider);
 
       if (response.success) {
         const assistantMessage: ChatMessage = {
@@ -107,14 +107,14 @@ export const useChat = () => {
         }));
 
         setQuickSuggestions(response.data.quickSuggestions || []);
-        
+
         console.log('✅ Message sent successfully, model:', response.data.modelUsed);
       } else {
         throw new Error(response.error || 'Failed to send message');
       }
     } catch (err: any) {
       console.error('❌ Failed to send message:', err);
-      
+
       const errorMessage: ChatMessage = {
         id: uuidv4(),
         content: `Sorry, I encountered an error: ${err.response?.data?.message || err.message}. Please try again.`,
