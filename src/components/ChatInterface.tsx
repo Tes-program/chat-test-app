@@ -176,7 +176,7 @@ export const ChatInterface = () => {
           <button
             type="submit"
             disabled={!inputMessage.trim() || session.isLoading || !isOnline}
-            className="px-6 py-2 bg-primary text-white rounded-full hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="px-6 py-2 bg-primary border-2  text-black rounded-full hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             <Send className="w-4 h-4" />
             <span>Send</span>
