@@ -1,3 +1,4 @@
+/* src/app/globals.css */
 @import "tailwindcss";
 
 @layer base {
@@ -28,6 +29,13 @@
   .chat-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #d1d5db;
   }
+
+  /* Mobile optimization */
+  @media (max-width: 768px) {
+    .chat-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+  }
 }
 
 .message-enter {
@@ -56,5 +64,18 @@
   40% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* Smooth transitions */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Better touch targets on mobile */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
   }
 }

@@ -1,3 +1,4 @@
+// src/utils/api.ts
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
@@ -9,7 +10,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'user-id': USER_ID,
   },
-  timeout: 30000, // 30 seconds timeout
+  timeout: 30000,
 });
 
 // Request interceptor
@@ -63,6 +64,36 @@ export const chatAPI = {
 
   getHealthCheck: async () => {
     const response = await api.get('/api/chatbot/health');
+    return response.data;
+  },
+
+  // NEW: Document upload endpoints
+  uploadDocument: async (file: File, sessionId: string) => {
+    const formData = new FormData();
+    formData.append('document', file);
+    formData.append('sessionId', sessionId);
+
+    const response = await axios.post(
+      `${API_BASE_URL}/api/chatbot/upload-document`,
+      formData,
+      {
+        headers: {
+          'user-id': USER_ID,
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 60000, // 60 seconds for file upload
+      }
+    );
+    return response.data;
+  },
+
+  getSessionDocuments: async (sessionId: string) => {
+    const response = await api.get(`/api/chatbot/session/${sessionId}/documents`);
+    return response.data;
+  },
+
+  deleteDocument: async (documentId: number) => {
+    const response = await api.delete(`/api/chatbot/document/${documentId}`);
     return response.data;
   },
 };

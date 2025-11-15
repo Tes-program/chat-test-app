@@ -1,6 +1,7 @@
+// src/hooks/useChat.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { ChatMessage, ChatSession } from '@/types/chat';
+import { ChatMessage, ChatSession, UploadedDocument } from '@/types/chat';
 import { chatAPI } from '@/utils/api';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -10,6 +11,7 @@ export const useChat = () => {
     userId: 1,
     messages: [],
     isLoading: false,
+    uploadedDocuments: [],
   });
   
   const [quickSuggestions, setQuickSuggestions] = useState<string[]>([]);
@@ -24,6 +26,20 @@ export const useChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [session.messages, scrollToBottom]);
+
+  const loadSessionDocuments = useCallback(async (sessionId: string) => {
+    try {
+      const response = await chatAPI.getSessionDocuments(sessionId);
+      if (response.success) {
+        setSession(prev => ({
+          ...prev,
+          uploadedDocuments: response.data.documents,
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to load session documents:', err);
+    }
+  }, []);
 
   const initializeChat = useCallback(async () => {
     try {
@@ -52,6 +68,9 @@ export const useChat = () => {
           messages: [welcomeMessage],
         }));
 
+        // Load any existing documents
+        await loadSessionDocuments(response.data.sessionId);
+
         setIsInitialized(true);
         console.log('✅ Chat session initialized:', response.data.sessionId);
       } else {
@@ -61,7 +80,7 @@ export const useChat = () => {
       console.error('❌ Failed to initialize chat:', err);
       setError(`Failed to initialize chat: ${err.response?.data?.message || err.message}`);
     }
-  }, []);
+  }, [loadSessionDocuments]);
 
   const sendMessage = useCallback(async (content: string, preferredProvider?: 'gemini' | 'openai') => {
     if (!content.trim() || !session.sessionId) return;
@@ -73,7 +92,6 @@ export const useChat = () => {
       timestamp: new Date(),
     };
 
-    // Add user message immediately
     setSession(prev => ({
       ...prev,
       messages: [...prev.messages, userMessage],
@@ -98,6 +116,7 @@ export const useChat = () => {
           platformActions: response.data.suggestedActions,
           modelUsed: response.data.modelUsed,
           cost: response.data.cost,
+          sources: response.data.sources,
         };
 
         setSession(prev => ({
@@ -132,6 +151,42 @@ export const useChat = () => {
     }
   }, [session.sessionId]);
 
+  const handleDocumentUpload = useCallback((document: UploadedDocument) => {
+    setSession(prev => ({
+      ...prev,
+      uploadedDocuments: [...(prev.uploadedDocuments || []), document],
+    }));
+
+    // Add system message about document upload
+    const systemMessage: ChatMessage = {
+      id: uuidv4(),
+      content: `✅ Document "${document.fileName}" uploaded successfully. You can now ask questions about it.`,
+      sender: 'assistant',
+      timestamp: new Date(),
+    };
+
+    setSession(prev => ({
+      ...prev,
+      messages: [...prev.messages, systemMessage],
+    }));
+  }, []);
+
+  const handleDocumentDelete = useCallback(async (documentId: number) => {
+    try {
+      await chatAPI.deleteDocument(documentId);
+      
+      setSession(prev => ({
+        ...prev,
+        uploadedDocuments: (prev.uploadedDocuments || []).filter(doc => doc.id !== documentId),
+      }));
+
+      console.log('✅ Document deleted:', documentId);
+    } catch (err) {
+      console.error('Failed to delete document:', err);
+      setError('Failed to delete document');
+    }
+  }, []);
+
   const clearChat = useCallback(() => {
     setSession(prev => ({
       ...prev,
@@ -155,6 +210,8 @@ export const useChat = () => {
     messagesEndRef,
     initializeChat,
     sendMessage,
+    handleDocumentUpload,
+    handleDocumentDelete,
     clearChat,
     resetChat,
   };

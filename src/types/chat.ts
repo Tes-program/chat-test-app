@@ -10,6 +10,7 @@ export interface ChatMessage {
   platformActions?: string[];
   modelUsed?: string;
   cost?: number;
+  sources?: Array<{ title: string; url: string }>;
 }
 
 export interface ChatSession {
@@ -17,6 +18,18 @@ export interface ChatSession {
   userId: number;
   messages: ChatMessage[];
   isLoading: boolean;
+  uploadedDocuments?: UploadedDocument[];
+}
+
+export interface UploadedDocument {
+  id: number;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  storageUrl: string;
+  uploadStatus: 'processing' | 'completed' | 'failed';
+  chunkCount?: number;
+  createdAt: string;
 }
 
 export interface ChatResponse {
@@ -33,6 +46,7 @@ export interface ChatResponse {
     personalized: boolean;
     modelUsed: string;
     cost: number;
+    sources?: Array<{ title: string; url: string }>;
   };
 }
 
@@ -44,5 +58,17 @@ export interface SessionResponse {
     welcomeMessage: string;
     islamicPrinciples: string[];
     platformFeatures: string[];
+  };
+}
+
+export interface DocumentUploadResponse {
+  success: boolean;
+  message: string;
+  data: {
+    documentId: number;
+    fileName: string;
+    fileType: string;
+    totalChunks: number;
+    storageUrl: string;
   };
 }

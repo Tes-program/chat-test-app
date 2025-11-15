@@ -1,5 +1,6 @@
+// src/components/MessageBubble.tsx
 import { ChatMessage } from '@/types/chat';
-import { Bot, User, CheckCircle, AlertCircle, DollarSign, Cpu } from 'lucide-react';
+import { Bot, User, CheckCircle, AlertCircle, DollarSign, Cpu, ExternalLink } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -10,26 +11,26 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
   
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start space-x-2 max-w-[80%]`}>
+      <div className={`flex ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start space-x-2 max-w-[85%] md:max-w-[80%]`}>
         {/* Avatar */}
-        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+        <div className={`flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center ${
           isUser ? 'bg-blue-500 ml-2' : 'bg-primary mr-2'
         }`}>
           {isUser ? (
-            <User className="w-4 h-4 text-white" />
+            <User className="w-3 h-3 md:w-4 md:h-4 text-white" />
           ) : (
-            <Bot className="w-4 h-4 text-white" />
+            <Bot className="w-3 h-3 md:w-4 md:h-4 text-white" />
           )}
         </div>
 
-        {/* Message content and include source */}
+        {/* Message content */}
         <div className="flex flex-col">
-          <div className={`rounded-lg px-4 py-2 ${
+          <div className={`rounded-lg px-3 md:px-4 py-2 ${
             isUser 
               ? 'bg-blue-500 text-white' 
               : 'bg-gray-100 text-gray-800'
           }`}>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+            <p className="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words">
               {message.content}
             </p>
             
@@ -37,13 +38,13 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
             <p className={`text-xs mt-1 ${
               isUser ? 'text-blue-100' : 'text-gray-500'
             }`}>
-              {message.timestamp.toLocaleTimeString()}
+              {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
 
           {/* Additional info for assistant messages */}
           {!isUser && (
-            <div className="mt-2 space-y-1">
+            <div className="mt-2 space-y-1.5">
               {/* Sharia compliance */}
               {message.isShariahCompliant !== undefined && (
                 <div className="flex items-center space-x-1">
@@ -67,6 +68,27 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
                 </div>
               )}
 
+              {/* Sources (NEW) */}
+              {message.sources && message.sources.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-600 mb-1 font-medium">📚 Sources:</p>
+                  <div className="space-y-1">
+                    {message.sources.map((source, index) => (
+                      <a
+                        key={index}
+                        href={source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">{source.title}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Model and cost info */}
               {message.modelUsed && (
                 <div className="flex items-center space-x-3 text-xs text-gray-500">
@@ -86,7 +108,7 @@ export const MessageBubble = ({ message }: MessageBubbleProps) => {
               {/* Recommended issuances */}
               {message.recommendedIssuances && message.recommendedIssuances.length > 0 && (
                 <div className="mt-2">
-                  <p className="text-xs text-gray-600 mb-1">Recommended Investments:</p>
+                  <p className="text-xs text-gray-600 mb-1 font-medium">💰 Recommended Investments:</p>
                   {message.recommendedIssuances.slice(0, 2).map((issuance, index) => (
                     <div key={index} className="bg-green-50 border border-green-200 rounded p-2 mb-1">
                       <p className="text-xs font-medium text-green-800">{issuance.title}</p>
